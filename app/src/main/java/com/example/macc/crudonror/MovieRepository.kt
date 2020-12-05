@@ -21,19 +21,19 @@ class MovieRepository (c: Context?, adapter: MovieAdapter) : MovieCRUD {
     private val queue = Volley.newRequestQueue(c)
    // private var url = "https://shrouded-shore-31030.herokuapp.com/movies"
 
-    private var url = "https://pure-beyond-97319.herokuapp.com/movies"
+  //  private var url = "https://pure-beyond-97319.herokuapp.com/movies"
+
+  private var url = "http://192.168.1.74:5000"
+
     private var adp = adapter
 
-    private var data: MutableMap<Int, Movie> =
-        mutableMapOf<Int, Movie>() //= mutableMapOf(-1 to Movie())
-
+    private var data: MutableMap<Int, Movie> = mutableMapOf()
 
     //curl -H "Content-Type: application/json" -X POST  -d '{"movie": {"title":"Matrix"}}' https://shrouded-shore-31030.herokuapp.com/movies
     override fun Create(title :String, rate: Int, year: String, description:String): Boolean {
 
         var req = HashMap<String,String>()
         req["title"]=title
-        //req["year"]=year.toString()
         req["year"]="1/1/"+year
         req["description"]=description
         req["rate"]=rate.toString()
@@ -46,17 +46,17 @@ class MovieRepository (c: Context?, adapter: MovieAdapter) : MovieCRUD {
         movie.year=year
 
         Log.i("ROR.3",req["year"])
+        Log.i("info", "Create: "+JSONObject(req.toMap()))
 
         val stringRequest = JsonObjectRequest(
             Request.Method.POST, url, JSONObject(req.toMap()),
-            Response.Listener<JSONObject> { r ->
-                val key=JSONObject(r.toString()).getInt("id")
-                movie.movieID=key
-                data.set(key,movie)
+            { r ->
+                val key = JSONObject(r.toString()).getInt("id")
+                movie.movieID = key
+                data.set(key, movie)
                 adp.notifyDataSetChanged()
-
             },
-            Response.ErrorListener { error: VolleyError? ->
+            { error: VolleyError? ->
                 Log.e(
                     "ROR",
                     "/get request ERROR!: $error"
@@ -90,28 +90,30 @@ class MovieRepository (c: Context?, adapter: MovieAdapter) : MovieCRUD {
         Log.i("ROR","FETCHING DATA FROM WEB-API....")
         val stringRequest = JsonArrayRequest(
             Request.Method.GET, url, null,
-            Response.Listener<JSONArray> { r ->
+            { r ->
                 val reply = JSONArray(r.toString())
-                var movieJSON :JSONObject
-                var movie : Movie
-                for (i in 0..reply.length()-1){
+                Log.i("info", "ReadAll: "+reply[0].toString())
+
+                var movieJSON: JSONObject
+                var movie: Movie
+                for (i in 1..reply.length()-1) {
 
                     movieJSON = JSONObject(reply[i].toString())
                     movie = Movie()
-                    movie.movieID=movieJSON.getInt("id")
-                    movie.title=movieJSON.getString("title")
-                    movie.year=movieJSON.getString("year")
+                    movie.movieID = movieJSON.getInt("id")
+                    movie.title = movieJSON.getString("title")
+                    movie.year = movieJSON.getString("year")
 
                     Log.i("ROR.3", movieJSON.getString("year"))
 
-                    movie.description=movieJSON.getString("description")
+                    movie.description = movieJSON.getString("description")
                     data.put(movie.movieID, movie)
 
                 }
                 adp.notifyDataSetChanged()
                 Log.i("ROR", data.toString())
             },
-            Response.ErrorListener { error: VolleyError? ->
+            { error: VolleyError? ->
                 Log.e(
                     "ROR",
                     "/get request ERROR!: $error"
@@ -130,7 +132,7 @@ class MovieRepository (c: Context?, adapter: MovieAdapter) : MovieCRUD {
 
         var req = HashMap<String,String>()
         req["title"]=title
-        req["year"]=year.toString()
+        req["year"]=year
         req["rate"]=rate.toString()
         req["description"]=description
 
@@ -143,18 +145,18 @@ class MovieRepository (c: Context?, adapter: MovieAdapter) : MovieCRUD {
 
 
         movie!!.title=title
-        movie!!.year=year
-        movie!!.rate=rate
-        movie!!.description=description
+        movie.year=year
+        movie.rate=rate
+        movie.description=description
         data.set(key,movie)
 
         adp.notifyItemChanged(position)
 
         val stringRequest = JsonObjectRequest(
             Request.Method.PUT, url+"/"+key.toString(), JSONObject(req.toMap()),
-            Response.Listener<JSONObject> { r ->
+            { r ->
             },
-            Response.ErrorListener { error: VolleyError? ->
+            { error: VolleyError? ->
                 Log.e(
                     "ROR",
                     "/get request ERROR!: $error"
@@ -170,9 +172,9 @@ class MovieRepository (c: Context?, adapter: MovieAdapter) : MovieCRUD {
         adp.notifyDataSetChanged()
         val stringRequest = JsonObjectRequest(
             Request.Method.DELETE, url+"/"+position.toString(), null,
-            Response.Listener<JSONObject> { r ->
+            { r ->
             },
-            Response.ErrorListener { error: VolleyError? ->
+            { error: VolleyError? ->
                 Log.e(
                     "ROR",
                     "/DELETE ERROR!: $error"

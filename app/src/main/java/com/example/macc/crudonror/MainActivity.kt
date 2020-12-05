@@ -19,6 +19,7 @@ class MainActivity : AppCompatActivity() {
 
 
         val itemDecoration = DividerItemDecoration(this, DividerItemDecoration.VERTICAL)
+
         list.addItemDecoration(itemDecoration)
 
         val adapter = MovieAdapter(this)
@@ -26,18 +27,7 @@ class MainActivity : AppCompatActivity() {
         list.layoutManager= LinearLayoutManager(this)
         list.adapter=adapter
         fab.setOnClickListener(adapter)
-        /*
-        { view ->
-            val builder = AlertDialog.Builder(this)
-            val dialogView = LayoutInflater.from(this).inflate(R.layout.movie_createupdate,null)
-            builder.setTitle("Create a new movie")
-            builder.setView(dialogView)
-            // add a button
-            builder.setPositiveButton("OK", null);
-            builder.create().show()
-        }
 
-         */
     }
 
 

@@ -1,6 +1,5 @@
 package com.example.macc.crudonror
 
-import java.util.Date
 
 
 class Movie  {
@@ -10,6 +9,5 @@ class Movie  {
      var rate: Int = 5
      var year: String= ""
      var description:String = "...."
-     var comment: String = "..."
 
 }
